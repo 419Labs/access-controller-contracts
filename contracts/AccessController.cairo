@@ -13,6 +13,7 @@ from contracts.libraries.AccessController_base import (
     AccessController_register,
     AccessController_forceRegister
 )
+from starkware.starknet.common.syscalls import get_caller_address
 
 @constructor
 func constructor{
@@ -55,10 +56,11 @@ func register{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(address: felt):
+    }():
     # Anyone can register a new slot
     # Tx will fail if no more slots available
-    AccessController_register(address)
+    let (caller_address) = get_caller_address()
+    AccessController_register(caller_address)
     return ()
 end
 

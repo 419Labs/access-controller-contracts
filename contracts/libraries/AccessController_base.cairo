@@ -74,10 +74,7 @@ func AccessController_forceRegister{
         range_check_ptr
     }(address: felt):
     alloc_locals
-
-    # Check address not null
-    assert_not_zero(address)
-
+    
     # If no free slot -> increase for 1 more
     let (free_slots_count) = AccessController_freeSlotsCount()
     tempvar syscall_ptr = syscall_ptr
