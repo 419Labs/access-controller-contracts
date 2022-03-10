@@ -4,7 +4,9 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from contracts.libraries.Ownable import (
     Ownable_initializer,
-    Ownable_only_owner
+    Ownable_only_owner,
+    Ownable_get_owner,
+    Ownable_transfer_ownership
 )   
 from contracts.libraries.AccessController_base import (
     AccessController_initializer,
@@ -50,6 +52,16 @@ func freeSlotsCount{
     return (free_slots_count)
 end
 
+@view
+func getOwner{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (owner: felt):
+    let (owner) = Ownable_get_owner()
+    return (owner=owner)
+end
+
 @external
 func increaseMaxSlots{
         syscall_ptr : felt*, 
@@ -86,4 +98,14 @@ func forceRegister{
     # Force the register, total count will be increase
     AccessController_forceRegister(address)
     return ()
+end
+
+@external
+func transferOwnership{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(new_owner: felt) -> (new_owner: felt):
+    Ownable_transfer_ownership(new_owner)
+    return (new_owner=new_owner)
 end
