@@ -27,18 +27,28 @@ func AccessController_initializer{
     return ()
 end
 
+func AccessController_isAllowed{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(address: felt) -> (is_allowed: felt):
+    # Check if an address is registered in the whitelist
+    let (is_allowed) = AccessController_whitelist.read(address)
+    return (is_allowed)
+end
+
 # Increase the total slots available
 func AccessController_increaseMaxSlots{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(increase_max_count_by: felt):
+    }(increase_max_slots_by: felt):
 
     # Check increase value is positive
-    assert_nn(increase_max_count_by)
+    assert_nn(increase_max_slots_by)
 
     let (current_max_count) = AccessController_maxSlotsCount.read()
-    let new_max_count = current_max_count + increase_max_count_by
+    let new_max_count = current_max_count + increase_max_slots_by
     AccessController_maxSlotsCount.write(new_max_count)
     return ()
 end
@@ -74,7 +84,7 @@ func AccessController_forceRegister{
         range_check_ptr
     }(address: felt):
     alloc_locals
-    
+
     # If no free slot -> increase for 1 more
     let (free_slots_count) = AccessController_freeSlotsCount()
     tempvar syscall_ptr = syscall_ptr

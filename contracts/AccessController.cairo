@@ -8,6 +8,7 @@ from contracts.libraries.Ownable import (
 )   
 from contracts.libraries.AccessController_base import (
     AccessController_initializer,
+    AccessController_isAllowed,
     AccessController_freeSlotsCount,
     AccessController_increaseMaxSlots,
     AccessController_register,
@@ -30,11 +31,21 @@ func constructor{
 end
 
 @view
+func isAllowed{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(address: felt) -> (is_allowed: felt):
+    let (is_allowed) = AccessController_isAllowed(address)
+    return (is_allowed)
+end
+
+@view
 func freeSlotsCount{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }() -> (free_slots_count):
+    }() -> (free_slots_count: felt):
     let (free_slots_count) = AccessController_freeSlotsCount()
     return (free_slots_count)
 end
@@ -44,10 +55,10 @@ func increaseMaxSlots{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
-    }(increase_max_count_by: felt):
+    }(increase_max_slots_by: felt):
     # Only Owner should be able to increase the available slots
     Ownable_only_owner()
-    AccessController_increaseMaxSlots(increase_max_count_by)
+    AccessController_increaseMaxSlots(increase_max_slots_by)
     return ()
 end
 
