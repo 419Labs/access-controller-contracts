@@ -14,7 +14,8 @@ from contracts.libraries.AccessController_base import (
     AccessController_freeSlotsCount,
     AccessController_increaseMaxSlots,
     AccessController_register,
-    AccessController_forceRegister
+    AccessController_forceRegister,
+    AccessController_forceRegisterBatch
 )
 from starkware.starknet.common.syscalls import get_caller_address
 
@@ -97,6 +98,19 @@ func forceRegister{
     Ownable_only_owner()
     # Force the register, total count will be increase
     AccessController_forceRegister(address)
+    return ()
+end
+
+@external
+func forceRegisterBatch{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(batch_address_len : felt, batch_address : felt*):
+    # Only Owner should be able to force a register batch
+    Ownable_only_owner()
+    # Force the batch register, total count will be increase
+    AccessController_forceRegisterBatch(batch_address_len, batch_address)
     return ()
 end
 

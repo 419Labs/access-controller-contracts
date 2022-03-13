@@ -99,6 +99,21 @@ func AccessController_forceRegister{
     return ()
 end
 
+func AccessController_forceRegisterBatch{
+        syscall_ptr: felt*, 
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(batch_address_len : felt, batch_address : felt*):
+    if batch_address_len == 0:
+        return ()
+    end
+
+    let new_address_to_register = batch_address[0]
+    AccessController_forceRegister(new_address_to_register)
+
+    return AccessController_forceRegisterBatch(batch_address_len - 1, batch_address=&batch_address[1])
+end
+
 func _register{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
