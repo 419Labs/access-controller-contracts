@@ -2,7 +2,8 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from contracts.libraries.Ownable import (
+from starkware.starknet.common.syscalls import get_caller_address
+from openzeppelin.access.ownable import (
     Ownable_initializer,
     Ownable_get_owner,
     Ownable_transfer_ownership
@@ -16,7 +17,6 @@ from contracts.libraries.AccessController_base import (
     AccessController_forceRegister,
     AccessController_forceRegisterBatch
 )
-from starkware.starknet.common.syscalls import get_caller_address
 
 @constructor
 func constructor{
