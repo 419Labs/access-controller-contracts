@@ -6,6 +6,18 @@ from starkware.cairo.common.math import assert_not_zero, assert_nn
 from contracts.libraries.Ownable import Ownable_only_owner
 
 #
+# Events
+#
+
+@event
+func Register(registered_address: felt):
+end
+
+@event
+func IncreaseMaxSlots(slots_added_count: felt):
+end
+
+#
 # Storage
 #
 
@@ -76,6 +88,9 @@ func AccessController_increaseMaxSlots{
     let (current_max_count) = AccessController_maxSlotsCount.read()
     let new_max_count = current_max_count + increase_max_slots_by
     AccessController_maxSlotsCount.write(new_max_count)
+
+    # Emit slots increase event
+    IncreaseMaxSlots.emit(slots_added_count=increase_max_slots_by)
     return ()
 end
 
@@ -158,5 +173,8 @@ func _register{
     AccessController_whitelist.write(address, 1)
     let (current_count) = AccessController_slotUsedCount.read()
     AccessController_slotUsedCount.write(current_count + 1)
+
+    # Emit registration event
+    Register.emit(registered_address=address)
     return ()
 end
