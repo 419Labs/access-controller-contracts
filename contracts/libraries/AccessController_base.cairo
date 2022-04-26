@@ -3,6 +3,23 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero, assert_nn
+from openzeppelin.access.ownable import Ownable_only_owner
+
+#
+# Events
+#
+
+@event
+func Register(registered_address: felt):
+end
+
+@event
+func IncreaseMaxSlots(slots_added_count: felt):
+end
+
+#
+# Storage
+#
 
 @storage_var
 func AccessController_maxSlotsCount() -> (max: felt):
@@ -27,6 +44,10 @@ func AccessController_initializer{
     return ()
 end
 
+#
+# Getters
+#
+
 func AccessController_isAllowed{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
@@ -35,22 +56,6 @@ func AccessController_isAllowed{
     # Check if an address is registered in the whitelist
     let (is_allowed) = AccessController_whitelist.read(address)
     return (is_allowed)
-end
-
-# Increase the total slots available
-func AccessController_increaseMaxSlots{
-        syscall_ptr : felt*, 
-        pedersen_ptr : HashBuiltin*,
-        range_check_ptr
-    }(increase_max_slots_by: felt):
-
-    # Check increase value is positive
-    assert_nn(increase_max_slots_by)
-
-    let (current_max_count) = AccessController_maxSlotsCount.read()
-    let new_max_count = current_max_count + increase_max_slots_by
-    AccessController_maxSlotsCount.write(new_max_count)
-    return ()
 end
 
 # Return the current count of free slots
@@ -63,6 +68,30 @@ func AccessController_freeSlotsCount{
     let (current_count) = AccessController_slotUsedCount.read()
     let free_slots_count = current_max_count - current_count
     return (free_slots_count)
+end
+
+#
+# Externals
+#
+
+# Increase the total slots available
+func AccessController_increaseMaxSlots{
+        syscall_ptr : felt*, 
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(increase_max_slots_by: felt):
+    # Only Owner should be able to increase the available slots
+    Ownable_only_owner()
+    # Check increase value is positive
+    assert_nn(increase_max_slots_by)
+
+    let (current_max_count) = AccessController_maxSlotsCount.read()
+    let new_max_count = current_max_count + increase_max_slots_by
+    AccessController_maxSlotsCount.write(new_max_count)
+
+    # Emit slots increase event
+    IncreaseMaxSlots.emit(slots_added_count=increase_max_slots_by)
+    return ()
 end
 
 # Register a new whitlisted address if there is at least 1 free slot
@@ -85,6 +114,9 @@ func AccessController_forceRegister{
     }(address: felt):
     alloc_locals
 
+    # Only Owner should be able to force a register
+    Ownable_only_owner()
+
     # If no free slot -> increase for 1 more
     let (free_slots_count) = AccessController_freeSlotsCount()
     tempvar syscall_ptr = syscall_ptr
@@ -104,6 +136,9 @@ func AccessController_forceRegisterBatch{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(batch_address_len : felt, batch_address : felt*):
+    # Only Owner should be able to force a register batch
+    Ownable_only_owner()
+
     if batch_address_len == 0:
         return ()
     end
@@ -113,6 +148,10 @@ func AccessController_forceRegisterBatch{
 
     return AccessController_forceRegisterBatch(batch_address_len - 1, batch_address=&batch_address[1])
 end
+
+#
+# Internals
+#
 
 func _register{
         syscall_ptr : felt*, 
@@ -134,5 +173,8 @@ func _register{
     AccessController_whitelist.write(address, 1)
     let (current_count) = AccessController_slotUsedCount.read()
     AccessController_slotUsedCount.write(current_count + 1)
+
+    # Emit registration event
+    Register.emit(registered_address=address)
     return ()
 end

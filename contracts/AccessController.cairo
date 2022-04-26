@@ -2,9 +2,9 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from contracts.libraries.Ownable import (
+from starkware.starknet.common.syscalls import get_caller_address
+from openzeppelin.access.ownable import (
     Ownable_initializer,
-    Ownable_only_owner,
     Ownable_get_owner,
     Ownable_transfer_ownership
 )   
@@ -17,7 +17,6 @@ from contracts.libraries.AccessController_base import (
     AccessController_forceRegister,
     AccessController_forceRegisterBatch
 )
-from starkware.starknet.common.syscalls import get_caller_address
 
 @constructor
 func constructor{
@@ -32,6 +31,10 @@ func constructor{
     AccessController_initializer(initial_allowed_access)
     return ()
 end
+
+#
+# Getters
+#
 
 @view
 func isAllowed{
@@ -63,14 +66,17 @@ func getOwner{
     return (owner=owner)
 end
 
+#
+# Externals
+#
+
 @external
 func increaseMaxSlots{
         syscall_ptr : felt*, 
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(increase_max_slots_by: felt):
-    # Only Owner should be able to increase the available slots
-    Ownable_only_owner()
+    # Ownable check in function
     AccessController_increaseMaxSlots(increase_max_slots_by)
     return ()
 end
@@ -94,8 +100,7 @@ func forceRegister{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(address: felt):
-    # Only Owner should be able to force a register
-    Ownable_only_owner()
+    # Ownable check in function
     # Force the register, total count will be increase
     AccessController_forceRegister(address)
     return ()
@@ -107,8 +112,7 @@ func forceRegisterBatch{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr
     }(batch_address_len : felt, batch_address : felt*):
-    # Only Owner should be able to force a register batch
-    Ownable_only_owner()
+    # Ownable check in function
     # Force the batch register, total count will be increase
     AccessController_forceRegisterBatch(batch_address_len, batch_address)
     return ()
@@ -120,6 +124,7 @@ func transferOwnership{
         pedersen_ptr : HashBuiltin*,
         range_check_ptr
     }(new_owner: felt) -> (new_owner: felt):
+    # Ownable check in function
     Ownable_transfer_ownership(new_owner)
     return (new_owner=new_owner)
 end
