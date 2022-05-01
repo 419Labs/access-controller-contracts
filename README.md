@@ -94,9 +94,46 @@ accessControllerContract
 
 This contract has been used for [Alpha Road](https://twitter.com/alpharoad_fi) during the first Testnet phases of the launch of our first offering: a one-click revisited AMM.
 
-## Disclaimer
+## Tests
 
-No tests provided. Use it at your own risks.
+### Run tests
+
+First, install requirements:
+
+```sh
+pip install -r requirements.txt
+pip install -r tests/requirements.txt
+```
+
+Run all tests:
+
+```sh
+pytest
+```
+
+Run a specific test:
+
+```sh
+pytest tests/test_AccessController.py -k test_transfer_ownership_should_fail_when_caller_is_not_owner
+```
+
+### Linter
+
+To make our tests readable we use a standard linter: [flake8](https://flake8.pycqa.org/en/latest/)
+
+Run linter:
+
+```sh
+flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
+```
+
+Flake will only act as linter and will not help you to fix/format your python files. We recommend using: [yapf](https://github.com/google/yapf)
+
+E.g:
+
+```sh
+yapf --recursive --style='{based_on_style: pep8, column_limit: 120, indent_width: 4}' -i tests
+```
 
 ## Improvements
 
