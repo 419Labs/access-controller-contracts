@@ -3,7 +3,6 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_zero, assert_nn
-from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 from openzeppelin.access.ownable import Ownable_only_owner
 
 #
