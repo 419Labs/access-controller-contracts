@@ -1,0 +1,13 @@
+["protostar.config"]
+protostar_version = "0.2.3"
+
+["protostar.project"]
+libs_path = "lib"
+
+["protostar.contracts"]
+AccessController = [
+    "./contracts/AccessController.cairo",
+]
+
+["protostar.shared_command_configs"]
+cairo_path = ["./lib/cairo_contracts/src"]
